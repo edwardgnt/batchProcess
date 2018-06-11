@@ -71,13 +71,7 @@ abstract class AbstractValidator
             return $fileOk;
         } catch (\Exception $e) {
             // @todo handle error while downloading files
-
-
-
-
-
-
-
+            
         }
     }
 
