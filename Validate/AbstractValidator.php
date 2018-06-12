@@ -121,30 +121,48 @@ abstract class AbstractValidator
                     $status = $this->validateZipCode($value);
                     break;
                 case "country";
-                $status = $this->validateCountry($value);
-                break;
-            case "phoneNumber" :
-                $status = $this->validatePhoneNumber($value);
-                break;
-            case "promo" :
-                $status = $this->validateTransactionDate($value);
-                break;
-            case "retailStore" :
-                $status = $this->validateRetailStore($value);
-                break;
-            case "date" :
-                $status = $this->validateRetailStore($value);
-                break;
-            default :
-                $status = false;
+                    $status = $this->validateCountry($value);
+                    break;
+                case "phoneNumber" :
+                    $status = $this->validatePhoneNumber($value);
+                    break;
+                case "promo" :
+                    $status = $this->validateTransactionDate($value);
+                    break;
+                case "retailStore" :
+                    $status = $this->validateRetailStore($value);
+                    break;
+                case "date" :
+                    $status = $this->validateRetailStore($value);
+                    break;
+                default:
+                    $status = false;
+            }
+
+            if (!status) {
+                $errors[] = $key;
+            }
         }
 
-        if (!status) {
-            $errors[] = $key;
-        }
+        return $errors;
     }
 
-    return $errors;
+    /**
+     * Get database connection
+     *
+     * @return void
+     */
+    protected function getDb()
+    {
+        if(!is_a($this->db, 'Pdo')) {
+            $this->setDb();
+        }
+        return $this->db;
+    }
+
+    protected function setDb()
+    {
+        // @todo connect to a database here
+    }
 }
 
-}
