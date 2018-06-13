@@ -3,23 +3,49 @@ namespace Validate;
 
 abstract class AbstractValidator
 {
+
     private $db;
-    protected $emailBathGroup;
+    protected $emailBatchGroup;
     protected $errorMessage;
     protected $errors;
 
     public function __construct()
     {
-
+        $this->setDb();
     }
 
     public function __destruct()
     {
-
+        if (is_a($this->Db, 'Pdo')) {
+            unset($this->Db);
+        }
     }
 
     /**
-     * Set fields to validate
+     * Get database connection
+     *
+     * @return void
+     */
+    protected function getDb()
+    {
+        if (!is_a($this->Db, 'Pdo')) {
+            $this->setDb();
+        }
+        return $this->Db;
+    }
+
+    /**
+     * Set the database connection
+     *
+     * @return void
+     */
+    protected function setDb()
+    {
+        $this->Db = \path\to\Database::connection();
+    }
+
+    /**
+     * Set validation fields
      */
     abstract public function validateFirstName($firstName);
     abstract public function validateLastName($lastName);
@@ -30,9 +56,10 @@ abstract class AbstractValidator
     abstract public function validateZipCode($zipCode);
     abstract public function validateCountry($country);
     abstract public function validatePhoneNumber($phoneNumber);
-    abstract public function validatePromotionCode($promotionCode);
+    abstract public function validateEmail($email);
     abstract public function validateRetailStore($retailStore);
-    abstract public function validateTransactionDate($date);
+    abstract public function validatePromotion($promotion);
+    abstract public function validateTransactionDate($transactionDate);
 
     /**
      * Get errors
@@ -42,38 +69,31 @@ abstract class AbstractValidator
         return $this->errors;
     }
 
-
-    /**
-     * Validate batch file
-     *
-     * @param [type] $batchFile
-     * @return void
-     */
     public function validate($batchFile)
     {
         $fileOk = true;
 
         try {
-            // prevent checking the first row
+            // Prevent checking the first row
             $batchFile->next();
 
-            while ($batchFile->valid()) {
+            while($batchFile->valid()) {
                 $rowErrors = $this->validateRow($batchFile->current());
 
-                if (count($rowErrors) > 0) {
+                if(count($rowErrors) > 0) {
                     $fileOk = false;
                     $position = $batchFile->current();
-                    $this->errors[] = "On batch row: {$position} there was an error with: " . implode(", ", $rowErrors);
+                    $this->errors[] = "On row: {$position} there was an error with: " . implode(", ", $rowErrors);
                 }
                 $batchFile->next();
             }
-
             return $fileOk;
         } catch (\Exception $e) {
             // @todo handle error while downloading files
-            
         }
     }
+
+
 
     /**
      * Validate row
@@ -82,20 +102,19 @@ abstract class AbstractValidator
     {
         $errors = [];
 
-        // Check if it's a Canadian zip code
+            // Check if it's a Canadian zip code
         $pattern = '/^([a-zA-Z]\d[a-zA-Z])\ {0,1}(\d[a-zA-Z]\d)$/';
-        $clean = preg_replace('/[^A-Z\d]/', '', strtoupper(trim($row->zip)));
+        $clean = preg_replace('/[^A-Z\d]/', '', strtoupper(trim($batchRow->zip)));
         if (!preg_match($pattern, $clean)) {
-            
-            // If no match, invoke function that checks for zip code state mismatch. This is for US only. 
-            $zipStateMatch = $this->validateZipState($row->zip, $row->state);
+
+                // If not a match, invoke this function to check for zip code state mismatch via database. U.S. only
+            $zipStateMatch = $this->validateZipAndState($batchRow->zip, $batchRow->state);
             if ($zipStateMatch == false) {
-                $errors[] = "Zip code and State Mismatch";
+                $errors[] = "Mismatch for zip code and state";
             }
         }
 
         foreach ($batchRow as $key => $value) {
-
             $status = true;
 
             switch ($key) {
@@ -109,7 +128,7 @@ abstract class AbstractValidator
                     $status = $this->validateAddress($value);
                     break;
                 case "address2" :
-                    $tatus = $this->validateAddress2($value);
+                    $status = $this->validateAddress2($value);
                     break;
                 case "city" :
                     $status = $this->validateCity($value);
@@ -120,49 +139,32 @@ abstract class AbstractValidator
                 case "zipCode" :
                     $status = $this->validateZipCode($value);
                     break;
-                case "country";
+                case "country" :
                     $status = $this->validateCountry($value);
                     break;
                 case "phoneNumber" :
                     $status = $this->validatePhoneNumber($value);
                     break;
-                case "promo" :
-                    $status = $this->validateTransactionDate($value);
+                case "email" :
+                    $status = $this->validateEmail($value);
                     break;
                 case "retailStore" :
                     $status = $this->validateRetailStore($value);
                     break;
-                case "date" :
-                    $status = $this->validateRetailStore($value);
+                case "promotion" :
+                    $status = $this->validatePromotion($value);
                     break;
-                default:
+                case "transactionDate" :
+                    $status = $this->validateTransactionDate($value);
+                    break;
+                default :
                     $status = false;
             }
 
-            if (!status) {
+            if (!$status) {
                 $errors[] = $key;
             }
         }
-
         return $errors;
     }
-
-    /**
-     * Get database connection
-     *
-     * @return void
-     */
-    protected function getDb()
-    {
-        if(!is_a($this->db, 'Pdo')) {
-            $this->setDb();
-        }
-        return $this->db;
-    }
-
-    protected function setDb()
-    {
-        // @todo connect to a database here
-    }
 }
-
