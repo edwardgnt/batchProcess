@@ -3,7 +3,6 @@ namespace Validate;
 
 abstract class AbstractValidator
 {
-
     private $db;
     protected $emailBatchGroup;
     protected $errorMessage;
@@ -16,8 +15,8 @@ abstract class AbstractValidator
 
     public function __destruct()
     {
-        if (is_a($this->Db, 'Pdo')) {
-            unset($this->Db);
+        if (is_a($this->db, 'Pdo')) {
+            unset($this->db);
         }
     }
 
@@ -28,10 +27,10 @@ abstract class AbstractValidator
      */
     protected function getDb()
     {
-        if (!is_a($this->Db, 'Pdo')) {
+        if (!is_a($this->db, 'Pdo')) {
             $this->setDb();
         }
-        return $this->Db;
+        return $this->db;
     }
 
     /**
@@ -41,24 +40,24 @@ abstract class AbstractValidator
      */
     protected function setDb()
     {
-        $this->Db = \path\to\Database::connection();
+        $this->db = \path\to\Database::connection();
     }
 
     /**
-     * Set validation fields
+     * Set validation fields array coming in from a csv file
      */
     abstract public function validateFirstName($firstName);
     abstract public function validateLastName($lastName);
     abstract public function validateAddress($address);
     abstract public function validateAddress2($address2);
     abstract public function validateCity($city);
-    abstract public function validateState($state);
     abstract public function validateZipCode($zipCode);
     abstract public function validateCountry($country);
     abstract public function validatePhoneNumber($phoneNumber);
     abstract public function validateEmail($email);
     abstract public function validateRetailStore($retailStore);
     abstract public function validatePromotion($promotion);
+    abstract public function validateProductName($productName);
     abstract public function validateTransactionDate($transactionDate);
 
     /**
@@ -77,10 +76,10 @@ abstract class AbstractValidator
             // Prevent checking the first row
             $batchFile->next();
 
-            while($batchFile->valid()) {
+            while ($batchFile->valid()) {
                 $rowErrors = $this->validateRow($batchFile->current());
 
-                if(count($rowErrors) > 0) {
+                if (count($rowErrors) > 0) {
                     $fileOk = false;
                     $position = $batchFile->current();
                     $this->errors[] = "On row: {$position} there was an error with: " . implode(", ", $rowErrors);
@@ -90,13 +89,12 @@ abstract class AbstractValidator
             return $fileOk;
         } catch (\Exception $e) {
             // @todo handle error while downloading files
+
         }
     }
 
-
-
     /**
-     * Validate row
+     * Validate batch row
      */
     public function validateRow($batchRow)
     {
@@ -108,7 +106,7 @@ abstract class AbstractValidator
         if (!preg_match($pattern, $clean)) {
 
                 // If not a match, invoke this function to check for zip code state mismatch via database. U.S. only
-            $zipStateMatch = $this->validateZipAndState($batchRow->zip, $batchRow->state);
+            $zipStateMatch = $this->validateZipState($batchRow->zip, $batchRow->state);
             if ($zipStateMatch == false) {
                 $errors[] = "Mismatch for zip code and state";
             }
@@ -154,6 +152,9 @@ abstract class AbstractValidator
                 case "promotion" :
                     $status = $this->validatePromotion($value);
                     break;
+                case "productName" :
+                    $status = $this->validateProductName($value);
+                    break;
                 case "transactionDate" :
                     $status = $this->validateTransactionDate($value);
                     break;
@@ -166,5 +167,69 @@ abstract class AbstractValidator
             }
         }
         return $errors;
+    }
+
+    /**
+     * Checks if there is a match of Zip and State fields
+     *
+     * @param [string] $zip - Five digit zip code
+     * @param [string] $state - Two letter abbreviation
+     * @param boolean $strict
+     * @return void
+     */
+    public function validateZipState($zip, $state, $strict = true)
+    {
+        if (!preg_match('/^\d{3,5}$/', $zip) || !$this->validateState($state)) {
+            return false;
+        }
+
+        //Pads left for the zipcode with leading zeros that have been cleaned
+        $zipCode = str_pad($zip, 5, "0", STR_PAD_LEFT);
+
+        $query = "SELECT zip FROM zipcodes WHERE zip=?";
+        $db = $this->getDb();
+        $statement = $db->prepare($query);
+        $isOk = $statement->execute([$zip]);
+
+        $zipState = null;
+        if ($isOk) {
+            $zipState = $statement->fetchColumn();
+        }
+
+        $isValid = false;
+        if (strtoupper($state) == strtoupper($zipState)) {
+            // Zip and State are a match
+            $isValid = true;
+        }
+        elseif ($isOk && !$strict && $zipState == '') {
+            $isValid = true;
+        }
+        return $isValid;
+    }
+
+    /**
+     * Validates the state
+     *
+     * @param [string] $state
+     * @return void
+     */
+    public function validateState($state)
+    {
+        // Regex for US states, territories, and military states. Along with Canadian territories
+        $regexPattern = '/^(?:(A[ABEKLPRZ]|BC|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ABDEINOST]|N[BCDEHJLMSVY]|O[HKNR]|P[AER]|QC|RI|S[CDK]|T[NX]|UT|V[AIT]|W[AIVY]))$/';
+        return preg_match($regexPattern, strtoupper(trim($state)));
+    }
+
+    /**
+     * Validate Zip Code
+     *
+     * @param [string] $zip
+     * @return void
+     */
+    public function validateZip($zip)
+    {
+        $patternMatch = '/(^\d{3,5}$|^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/';
+        $clean = preg_replace('/[^A-Z\d]/', '', strtoupper(trim($zip)));
+        return preg_match($patternMatch, $clean);
     }
 }
