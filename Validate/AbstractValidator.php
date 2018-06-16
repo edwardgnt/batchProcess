@@ -1,5 +1,5 @@
 <?php
-namespace Validate;
+namespace BatchProces\Validate;
 
 abstract class AbstractValidator
 {
@@ -46,14 +46,13 @@ abstract class AbstractValidator
     /**
      * Set validation fields array coming in from a csv file
      */
-    abstract public function validateFirstName($firstName);
+    abstract public function validateUniqueId($id);
+     abstract public function validateFirstName($firstName);
     abstract public function validateLastName($lastName);
     abstract public function validateAddress($address);
     abstract public function validateAddress2($address2);
     abstract public function validateCity($city);
-    abstract public function validateZipCode($zipCode);
     abstract public function validateCountry($country);
-    abstract public function validatePhoneNumber($phoneNumber);
     abstract public function validateEmail($email);
     abstract public function validateRetailStore($retailStore);
     abstract public function validatePromotion($promotion);
@@ -116,6 +115,9 @@ abstract class AbstractValidator
             $status = true;
 
             switch ($key) {
+                case "uniqueId":
+                    $status = $this->validateUniqueId($value);
+                    break;
                 case "firstName" :
                     $status = $this->validateFirstName($value);
                     break;
@@ -139,9 +141,6 @@ abstract class AbstractValidator
                     break;
                 case "country" :
                     $status = $this->validateCountry($value);
-                    break;
-                case "phoneNumber" :
-                    $status = $this->validatePhoneNumber($value);
                     break;
                 case "email" :
                     $status = $this->validateEmail($value);
