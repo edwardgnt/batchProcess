@@ -1,11 +1,11 @@
 <?php
 namespace BatchProcess\Validate;
 
-class VendorOne extends AbstractValidator
+class VendorA extends AbstractValidator
 {
     public function validateUniqueId($id)
     {
-        $clean = preg_replace('/[^\d]/', '', trim($id));
+        $clean = trim($id);
         return preg_match('/^[\d]{1,30}$/', $clean);
     }
     
@@ -35,7 +35,7 @@ class VendorOne extends AbstractValidator
             $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address2));
             return preg_match('/^[a-zA-Z\d\ \#]{1,35}$/', $clean);
         } else {
-            return true;
+            return true;  // Since Address2 is optional return true when empty
         }
     }
 
@@ -47,8 +47,9 @@ class VendorOne extends AbstractValidator
 
     public function validateCountry($country)
     {
-        // This vendor only ships to US only
-        return true;
+        $case = strtoupper($country); 
+        $clean = trim($case);
+        return preg_match('/^[A-Za-z]{2}$/', $clean);
     }
 
     public function validateEmail($email)
