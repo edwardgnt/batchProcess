@@ -51,6 +51,17 @@ class VendorOne extends AbstractValidator
         return true;
     }
 
+    public function validateEmail($email)
+    {
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+        
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            return strlen($email) <= 50 ? $email : null;
+        }
+
+        return null;
+    }
+
     public function validateRetailStore($retailStore)
     {
         return trim($retailStore);
