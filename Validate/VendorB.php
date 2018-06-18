@@ -59,7 +59,13 @@ class VendorB extends AbstractValidator
 
     public function validateEmail($email)
     {
-        return true;
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+        
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            return strlen($email) <= 50 ? $email : null;
+        }
+
+        return null;
     }
 
     public function validateRetailStore($retailStore)
@@ -80,5 +86,14 @@ class VendorB extends AbstractValidator
     public function validateTransactionDate($transactionDate)
     {
         return trim($transactionDate);
+    }
+
+    public function validateCardAmount($cardAmount)
+    {
+        if(!empty(trim($cardAmount))) {
+            return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
+        } else {
+            return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
+        }
     }
 }

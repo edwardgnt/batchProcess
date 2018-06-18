@@ -58,6 +58,7 @@ abstract class AbstractValidator
     abstract public function validatePromotion($promotion);
     abstract public function validateProductName($productName);
     abstract public function validateTransactionDate($transactionDate);
+    abstract public function validateCardAmount($cardAmount);
 
     /**
      * Get errors
@@ -118,44 +119,47 @@ abstract class AbstractValidator
                 case "uniqueId":
                     $status = $this->validateUniqueId($value);
                     break;
-                case "firstName" :
+                case "firstName":
                     $status = $this->validateFirstName($value);
                     break;
-                case "lastName" :
+                case "lastName":
                     $status = $this->validateLastName($value);
                     break;
-                case "address" :
+                case "address":
                     $status = $this->validateAddress($value);
                     break;
-                case "address2" :
+                case "address2":
                     $status = $this->validateAddress2($value);
                     break;
-                case "city" :
+                case "city":
                     $status = $this->validateCity($value);
                     break;
-                case "state" :
+                case "state":
                     $status = $this->validateState($value);
                     break;
-                case "zipCode" :
+                case "zipCode":
                     $status = $this->validateZipCode($value);
                     break;
-                case "country" :
+                case "country":
                     $status = $this->validateCountry($value);
                     break;
-                case "email" :
+                case "email":
                     $status = $this->validateEmail($value);
                     break;
-                case "retailStore" :
+                case "retailStore":
                     $status = $this->validateRetailStore($value);
                     break;
-                case "promotion" :
+                case "promotion":
                     $status = $this->validatePromotion($value);
                     break;
-                case "productName" :
+                case "productName":
                     $status = $this->validateProductName($value);
                     break;
-                case "transactionDate" :
+                case "transactionDate":
                     $status = $this->validateTransactionDate($value);
+                    break;
+                case "cardAmount":
+                    $status = $this->validateCardAmount($value);
                     break;
                 default :
                     $status = false;
