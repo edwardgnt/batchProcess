@@ -1,9 +1,13 @@
 <?php
+/**
+ * This is an abstract class for the three vendor classes that will format the file ready for delivery to the vendor
+ */
+
 namespace BatchProces\Format;
 
 abstract class AbstractCard
 {
-        protected $basePath = '/assets/batch_files';
+        protected $basePath = '/files/batch_files';
         protected $fileName;
         protected $filePrefix;
         protected $tmpDir;
@@ -16,10 +20,34 @@ abstract class AbstractCard
             $this->tmpFileHandle = fopen($this->tmpFileName, 'wb') or die('Could not open temp file');
         }
 
-        abstract public function addCard($batchRow);
+        abstract public function addCard(array $batchRow);
+        
+        /**
+         * Adds formated cards to the file and returns a boolean
+         *
+         * @param array $cards
+         * @return bool
+         */
         abstract public function addCards(array $cards);
-        abstract public function format($row);
+        
+        /**
+         * Formats the batch row according to the vendor's specs
+         *
+         * @param [array] $batchRow
+         * @return mixed
+         */
+        abstract public function format(array $batchRow);
+        
+        /**
+         * Sets the file name
+         *
+         */
         abstract protected function setFileName();
+
+        /**
+         * Sets the prefix to the file
+         *
+         */
         abstract protected function setFilePrefix();
         
         /**
