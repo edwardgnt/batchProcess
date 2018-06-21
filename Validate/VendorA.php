@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * VendorA class to validate batch data fields passed from a csv
+ */
 namespace BatchProcess\Validate;
 
 class VendorA extends AbstractValidator
@@ -8,7 +12,7 @@ class VendorA extends AbstractValidator
         $clean = trim($id);
         return preg_match('/^[\d]{1,30}$/', $clean);
     }
-    
+
     public function validateFirstName($firstName)
     {
         $clean = preg_replace('/[\-\(\)\/]/', ' ', trim($firstName));
@@ -31,11 +35,13 @@ class VendorA extends AbstractValidator
 
     public function validateAddress2($address2)
     {
-        if($address2 != '') {
+        if ($address2 != '') {
             $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address2));
             return preg_match('/^[a-zA-Z\d\ \#]{1,35}$/', $clean);
-        } else {
+        }
+        else {
             return true;  // Since Address2 is optional return true when empty
+
         }
     }
 
@@ -47,7 +53,7 @@ class VendorA extends AbstractValidator
 
     public function validateCountry($country)
     {
-        $case = strtoupper($country); 
+        $case = strtoupper($country);
         $clean = trim($case);
         return preg_match('/^[A-Za-z]{2}$/', $clean);
     }
@@ -55,8 +61,8 @@ class VendorA extends AbstractValidator
     public function validateEmail($email)
     {
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             return strlen($email) <= 50 ? $email : null;
         }
 
@@ -85,9 +91,10 @@ class VendorA extends AbstractValidator
 
     public function validateCardAmount($cardAmount)
     {
-        if(!empty(trim($cardAmount))) {
+        if (!empty(trim($cardAmount))) {
             return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
-        } else {
+        }
+        else {
             return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
         }
     }

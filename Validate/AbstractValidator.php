@@ -1,11 +1,15 @@
 <?php
+
+/**
+ * Abstract class to validate batch fields
+ */
 namespace BatchProces\Validate;
+
+use BatchProcess\Helpers;
 
 abstract class AbstractValidator
 {
     private $db;
-    protected $emailBatchGroup;
-    protected $errorMessage;
     protected $errors;
 
     public function __construct()
@@ -47,7 +51,7 @@ abstract class AbstractValidator
      * Set validation fields array coming in from a csv file
      */
     abstract public function validateUniqueId($id);
-     abstract public function validateFirstName($firstName);
+    abstract public function validateFirstName($firstName);
     abstract public function validateLastName($lastName);
     abstract public function validateAddress($address);
     abstract public function validateAddress2($address2);
@@ -68,7 +72,7 @@ abstract class AbstractValidator
         return $this->errors;
     }
 
-    public function validate($batchFile)
+    public function validate(Helpers\Batch $batchFile)
     {
         $fileOk = true;
 
@@ -81,7 +85,7 @@ abstract class AbstractValidator
 
                 if (count($rowErrors) > 0) {
                     $fileOk = false;
-                    $position = $batchFile->current();
+                    $position = $batchFile->currentPosition();
                     $this->errors[] = "On row: {$position} there was an error with: " . implode(", ", $rowErrors);
                 }
                 $batchFile->next();
@@ -90,13 +94,16 @@ abstract class AbstractValidator
         } catch (\Exception $e) {
             // @todo handle error while downloading files
 
+
+
+
         }
     }
 
     /**
      * Validate batch row
      */
-    public function validateRow($batchRow)
+    public function validateRow(Helpers\BatchRow $batchRow)
     {
         $errors = [];
 
@@ -116,49 +123,49 @@ abstract class AbstractValidator
             $status = true;
 
             switch ($key) {
-                case "uniqueId":
+                case "uniqueId" :
                     $status = $this->validateUniqueId($value);
                     break;
-                case "firstName":
+                case "firstName" :
                     $status = $this->validateFirstName($value);
                     break;
-                case "lastName":
+                case "lastName" :
                     $status = $this->validateLastName($value);
                     break;
-                case "address":
+                case "address" :
                     $status = $this->validateAddress($value);
                     break;
-                case "address2":
+                case "address2" :
                     $status = $this->validateAddress2($value);
                     break;
-                case "city":
+                case "city" :
                     $status = $this->validateCity($value);
                     break;
-                case "state":
+                case "state" :
                     $status = $this->validateState($value);
                     break;
-                case "zipCode":
+                case "zipCode" :
                     $status = $this->validateZipCode($value);
                     break;
-                case "country":
+                case "country" :
                     $status = $this->validateCountry($value);
                     break;
-                case "email":
+                case "email" :
                     $status = $this->validateEmail($value);
                     break;
-                case "retailStore":
+                case "retailStore" :
                     $status = $this->validateRetailStore($value);
                     break;
-                case "promotion":
+                case "promotion" :
                     $status = $this->validatePromotion($value);
                     break;
-                case "productName":
+                case "productName" :
                     $status = $this->validateProductName($value);
                     break;
-                case "transactionDate":
+                case "transactionDate" :
                     $status = $this->validateTransactionDate($value);
                     break;
-                case "cardAmount":
+                case "cardAmount" :
                     $status = $this->validateCardAmount($value);
                     break;
                 default :

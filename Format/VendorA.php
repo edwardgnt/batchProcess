@@ -1,7 +1,13 @@
 <?php
+
+/**
+ * VendorA class formats and cleans the data fields and prepares the file for delivery to the vendor
+ */
 namespace BatchProcess\Format;
 
-class VendorA extends AbstractFile
+use BatchProcess\Helpers\BatchRow;
+
+class VendorA extends AbstractFormat
 {
     public static $counter;
     protected $dbRow;
@@ -30,17 +36,103 @@ class VendorA extends AbstractFile
      */
     public function __destruct()
     {
-        if(is_a($this->db, 'Pdo')) {
+        if (is_a($this->db, 'Pdo')) {
             unset($this->db);
-        }   
+        }
     }
 
-    public function addCard($batchRow)
+    public function addCard(BatchRow $batchRow)
     {
         $this->format($batchRow);
 
         $isAdded = true;
 
+        $data[] = $batchRow->id;
+        $data[] = '';
+        $data[] = $batchRow->firstName;
+        $data[] = '';
+        $data[] = $batchRow->lastName;
+        $data[] = '';
+        $data[] = '';
+        $data[] = $batchRow->address;
+        $data[] = $batchRow->address2;
+        $data[] = $batchRow->city;
+        $data[] = $batchRow->state;
+        $data[] = $batchRow->zipCode;
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = $batchRow->cardAmount;
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+        $data[] = '';
+
+        $bytes = $this->addRow($data);
+
+        if ($bytes > 0) {
+            $this->count++;
+        }
+        else {
+            $isAdded = false;
+        }
+        return $isAdded;
+    }
+
+    /**
+     * Add rows to the file per card
+     *
+     * @param array $cards
+     * @return bool
+     */
+    public function addCards(array $cards)
+    {
+        $fileOk = true;
+
+        foreach ($cards as $card) {
+            $isAdded = $this->addCard($card);
+
+            if (!$isAdded) {
+                $fileOk = false;
+            }
+        }
+        return $fileOk;
+    }
+
+    /**
+     * Creates the file to be delivered to the card vendor
+     *
+     * @return void
+     */
+    public function createFile()
+    {
+        $fullPath = $this->basePath . $this->path;
+        fclose($this->tmpFileHandle);
+
+        return rename($this->tmpFileHandle, $fullPath . $this->fileName);
+        chmod($fullPath . $this->fileName, 0644);
+    }
+
+    /**
+     * Format and clean the properties of the Batch Row needed for the vendor
+     *
+     * @param BatchRow $batchRow
+     * @return mixed
+     */
+    public function format(BatchRow &$batchRow)
+    {
+        $batchRow->firstName = $this->cleanName($batchRow->firstName);
+        $batchRow->lastName = $this->cleanName($batchRow->lastName);
+        $batchRow->address = $this->cleanAddress($batchRow->address);
+        $batchRow->address2 = $this->cleanAddress($batchRow->address2);
+        $batchRow->city = $this->cleanCity($batchRow->city);
+        $batchRow->zip = $this->cleanZipCode($batchRow->zipCode);
+        $batchRow->zip = $this->cleanCardAmount($batchRow->cardAmount);
     }
 
     /**
@@ -67,8 +159,8 @@ class VendorA extends AbstractFile
         $yearFilterPattern = '/' . date('Y') . '/';
 
         // Loop to filter the files of this current year
-        foreach($scannedFiles as $file) {
-                if(preg_match($yearFilterPattern, $file)) {
+        foreach ($scannedFiles as $file) {
+            if (preg_match($yearFilterPattern, $file)) {
                 array_push($scannedFilteredFiles, $file);
             }
         }
@@ -79,11 +171,12 @@ class VendorA extends AbstractFile
 
         // This sets up the file name suffix to increment beginning at 100. ex: filename_100.txt
         $lastFileName = pathinfo($lastFileCreated, PATHINFO_FILENAME);
-        if(trim(substr($lastFileName, 11, 10)) == $this->date) {
+        if (trim(substr($lastFileName, 11, 10)) == $this->date) {
             $fileCounter = intval(substr($lastFileName, -2));
 
             self::$counter = $fileCounter + 1;
-        } else {
+        }
+        else {
             self::$counter = 100;
         }
     }
@@ -95,10 +188,10 @@ class VendorA extends AbstractFile
      */
     protected function setFileName()
     {
-        for($i = $this->count; $i<1000; $i++) {
+        for ($i = $this->count; $i < 1000; $i++) {
             $name = $this->filePrefix . $this->date . '_' . str_pad($i, 2, '0');
             $this->fileName = $name . '.txt';
-            if(!file_exists($this->basePath . $this->fileName)) {
+            if (!file_exists($this->basePath . $this->fileName)) {
                 break;
             }
         }
@@ -128,7 +221,49 @@ class VendorA extends AbstractFile
         return fputs($this->tmpFileHandle, implode($this->delimiter, $row) . '\n');
     }
 
+    /**
+     * Functions below for another data field clean up
+     * cleanName($name)
+     * cleanZipCode($zip)
+     * cleanCardAmount($amount)
+     * 
+     */
 
+    private function cleanName($name)
+    {
+        $clean = preg_replace('/[^a-zA-Z\ ]/', '', trim($name));
+        return strtoupper(substr($clean, 0, 25));
+    }
 
+    private function cleanAddress($address)
+    {
+        $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address));
 
+        if (strlen($clean) > 35) {
+            throw new \LengthException('Address field can not be longer than 35 characters.');
+        }
+
+        return strtoupper(substr($clean, 0, 35));
+    }
+
+    private function cleanCity($city)
+    {
+        $clean = preg_replace('/[^a-zA-Z\ ]/', '', trim($city));
+        return strtoupper(substr($clean, 0, 20));
+    }
+
+    private function cleanZipCode($zip)
+    {
+        $clean = preg_replace('/[^\d]/', '', trim($zip));
+
+         // Pads left zip code with leading zeros that have been cleaned
+        $clean = str_pad($clean, 5, '0', \STR_PAD_LEFT);
+        return substr($clean, 0, 5);
+    }
+
+    private function cleanCardAmount($amount)
+    {
+        $clean = preg_replace('/[^\d]/', '', trim($amount));
+        return preg_replace('/[^0-9]/', '', $clean);
+    }
 }

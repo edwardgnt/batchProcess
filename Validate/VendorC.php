@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * VendorC class to validate batch data fields passed from a csv
+ */
 namespace BatchProcess\Validate;
 
 class VendorC extends AbstractValidator
@@ -31,10 +35,11 @@ class VendorC extends AbstractValidator
 
     public function validateAddress2($address2)
     {
-        if($address2 != ''){
+        if ($address2 != '') {
             $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($clean));
             return preg_match('/^[a-zA-Z\d\ \#]{1,40}$/', $clean);
-        } else {
+        }
+        else {
             return true;
         }
     }
@@ -55,8 +60,8 @@ class VendorC extends AbstractValidator
     public function validateEmail($email)
     {
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             return strlen($email) <= 50 ? $email : null;
         }
 
@@ -85,9 +90,10 @@ class VendorC extends AbstractValidator
 
     public function validateCardAmount($cardAmount)
     {
-        if(!empty(trim($cardAmount))) {
+        if (!empty(trim($cardAmount))) {
             return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
-        } else {
+        }
+        else {
             return preg_match('/^[\.\d]{1,10}$/', trim($cardAmount));
         }
     }
