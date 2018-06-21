@@ -1,6 +1,7 @@
 <?php
+
 /**
- * This class structures the batch row 
+ * BatchRow class structures the batch row
  */
 
 namespace BatchProcess\Helpers;
@@ -30,11 +31,11 @@ class BatchRow
 
     private function initialize(array $row)
     {
-        if(!is_array($row)) {
+        if (!is_array($row)) {
             throw new \InvalidArgumentException('Need an array to be passed');
         }
 
-        if(count($row) !== 15) {
+        if (count($row) !== 15) {
             throw new \UnexpectedValueException('Expecting 15 total columns');
         }
 

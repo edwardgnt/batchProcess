@@ -1,6 +1,7 @@
 <?php
+
 /**
- * This class opens, initializes, and structures the batch file
+ * BatchProcess class opens, initializes, and structures the batch file
  * input - csv file
  */
 namespace BatchProcess\Helpers;
@@ -28,13 +29,13 @@ class Batch implements \Iterator
      */
     private function initialize($file)
     {
-        if(!is_readable($file)) {
+        if (!is_readable($file)) {
             throw new \RuntimeException("Unreadable file: {$file}");
         }
 
         $fileHandler = fopen($file, 'r');
 
-        while($row = fgetscsv($fileHandler)) {
+        while ($row = fgetscsv($fileHandler)) {
             $this->rows[] = new BatchRow($row);
         }
     }
@@ -48,9 +49,10 @@ class Batch implements \Iterator
     {
         $isValid = $this->valid();
 
-        if($isValid) {
+        if ($isValid) {
             return $this->rows[$this->position];
-        } else {
+        }
+        else {
             throw new \OutOfRangeException();
         }
     }
@@ -64,9 +66,10 @@ class Batch implements \Iterator
     {
         $isValid = $this->valid();
 
-        if($isValid) {
+        if ($isValid) {
             return $this->position + 1;
-        } else {
+        }
+        else {
             throw new \OutOfRangeException();
         }
     }
