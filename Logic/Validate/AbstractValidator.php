@@ -3,7 +3,7 @@
 /**
  * Abstract class to validate batch fields
  */
-namespace BatchProces\Validate;
+namespace BatchProces\Logic\Validate;
 
 use BatchProcess\Helpers;
 

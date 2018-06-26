@@ -1,54 +1,53 @@
 <?php
 
 /**
- * VendorA class to validate batch data fields passed from a csv
+ * VendorC class to validate batch data fields passed from a csv
  */
-namespace BatchProcess\Validate;
+namespace BatchProcess\Logic\Validate;
 
-class VendorA extends AbstractValidator
+class VendorC extends AbstractValidator
 {
     public function validateUniqueId($id)
     {
         $clean = trim($id);
-        return preg_match('/^[\d]{1,30}$/', $clean);
+        return preg_match('/^[A-Za-z\d\ ]{1,17}$/', $clean);
     }
 
     public function validateFirstName($firstName)
     {
         $clean = preg_replace('/[\-\(\)\/]/', ' ', trim($firstName));
         $clean = preg_replace('/[^a-zA-Z\ ]/', '', $clean);
-        return preg_match('/^[a-zA-Z\ ]{1,25}$/', $clean);
+        return preg_match('/^[a-zA-Z\ ]{1,30}$/', $clean);
     }
 
-    public function validateLastName($lastName)
+    public function validatelastName($lastName)
     {
         $clean = preg_replace('/[\-\(\)\/]/', ' ', trim($lastName));
         $clean = preg_replace('/[^a-zA-Z\ ]/', '', $clean);
-        return preg_match('/^[a-zA-Z\ ]{1,25}$/', $clean);
+        return preg_match('/^[a-zA-Z\ ]{1,30}$/', $clean);
     }
 
     public function validateAddress($address)
     {
         $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address));
-        return preg_match('/^[a-zA-Z\d\ \#]{1,35}$/', $clean);
+        return preg_match('/^[a-zA-Z\d\ \#]{1,40}$/', $clean);
     }
 
     public function validateAddress2($address2)
     {
         if ($address2 != '') {
-            $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address2));
-            return preg_match('/^[a-zA-Z\d\ \#]{1,35}$/', $clean);
+            $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($clean));
+            return preg_match('/^[a-zA-Z\d\ \#]{1,40}$/', $clean);
         }
         else {
-            return true;  // Since Address2 is optional return true when empty
-
+            return true;
         }
     }
 
     public function validateCity($city)
     {
         $clean = preg_replace('/[^a-zA-Z\ ]/', '', trim($city));
-        return preg_match('/^[a-zA-Z\ ]{1,35}$/', $clean);
+        return preg_match('/^[a-zA-Z\ ]{1,30}$/', $clean);
     }
 
     public function validateCountry($country)
@@ -99,4 +98,3 @@ class VendorA extends AbstractValidator
         }
     }
 }
-

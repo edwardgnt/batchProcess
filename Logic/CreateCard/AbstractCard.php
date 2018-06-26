@@ -3,11 +3,11 @@
 /**
  * This is an abstract class for the three vendor classes that will format the file ready for delivery to the vendor
  */
-namespace BatchProces\Format;
+namespace BatchProces\Logic\CreateCard;
 
 use BatchProcess\Helpers\BatchRow;
 
-abstract class AbstractFormat
+abstract class AbstractCard
 {
     protected $basePath = '/files/batch_files';
     protected $fileName;

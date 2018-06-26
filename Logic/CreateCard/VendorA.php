@@ -3,11 +3,11 @@
 /**
  * VendorA class formats and cleans the data fields and prepares the file for delivery to the vendor
  */
-namespace BatchProcess\Format;
+namespace BatchProcess\Logic\CreateCard;
 
 use BatchProcess\Helpers\BatchRow;
 
-class VendorA extends AbstractFormat
+class VendorA extends AbstractCard
 {
     public static $counter;
     protected $dbRow;
