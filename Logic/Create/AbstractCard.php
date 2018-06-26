@@ -3,7 +3,7 @@
 /**
  * This is an abstract class for the three vendor classes that will format the file ready for delivery to the vendor
  */
-namespace BatchProces\Logic\CreateCard;
+namespace BatchProces\Logic\Create;
 
 use BatchProcess\Helpers\BatchRow;
 

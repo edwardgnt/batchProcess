@@ -5,7 +5,7 @@
  */
 namespace BatchProcess\Logic\Validate;
 
-class VendorC extends AbstractValidator
+class IssuerC extends AbstractValidator
 {
     public function validateUniqueId($id)
     {

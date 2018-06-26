@@ -1,13 +1,13 @@
 <?php
 
 /**
- * VendorA class formats and cleans the data fields and prepares the file for delivery to the vendor
+ * IssuerA class formats and cleans the data fields and prepares the file for delivery to the vendor
  */
-namespace BatchProcess\Logic\CreateCard;
+namespace BatchProcess\Logic\Create;
 
 use BatchProcess\Helpers\BatchRow;
 
-class VendorA extends AbstractCard
+class IssuerA extends AbstractCard
 {
     public static $counter;
     protected $dbRow;
