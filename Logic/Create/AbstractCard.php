@@ -15,6 +15,7 @@ abstract class AbstractCard
     protected $tmpDir;
     protected $tmpFileHandle;
     protected $tmpFileName;
+    protected $date;
 
     public function __construct()
     {
@@ -41,6 +42,14 @@ abstract class AbstractCard
     abstract public function format(BatchRow &$batchRow);
 
     /**
+     * Sets the date format
+     *
+     * @param [string] $date
+     * @return string
+     */
+    abstract public function setDate();
+
+    /**
      * Sets the file name
      *
      */
@@ -51,6 +60,50 @@ abstract class AbstractCard
      *
      */
     abstract protected function setFilePrefix();
+
+    /**
+     * Checks for any invalid characters according to the Issuer's specs
+     * Only allows for a certain length of characters to pass
+     * Converts to uppercase
+     *
+     * @param [stirng] $name
+     * @return string
+     */
+    abstract protected function cleanName($name);
+
+    /**
+     * Checks for any invalid characters according to the Issuer's specs
+     * Only allows for a certain length characters to pass
+     *
+     * @param [string] $address
+     * @return string
+     */
+    abstract protected function cleanAddress($address);
+
+    /**
+     * Checks for any invalid characters according the Issuer's specs
+     * Converts to uppercase
+     *
+     * @param [string] $city
+     * @return string
+     */
+    abstract protected function cleanCity($city);
+
+    /**
+     * Checks for invalid characters
+     *
+     * @param [string] $zip
+     * @return string
+     */
+    abstract protected function cleanZipCode($zip);
+
+    /**
+     * Checks for invalid characters
+     *
+     * @param [string] $amount
+     * @return string
+     */
+    abstract protected function cleanCardAmount($amount);
 
     /**
      * Cleans up the file handle

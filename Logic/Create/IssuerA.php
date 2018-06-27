@@ -11,9 +11,8 @@ class IssuerA extends AbstractCard
 {
     public static $counter;
     protected $dbRow;
-    private $filePath = 'vendor_a/batch_files/new/';
-    private $deliveredPath = 'vendor_a/batch_files/delivered';
-    private $date;
+    private $filePath = 'issuer_a/batch_files/new/';
+    private $deliveredPath = 'issuer_a/batch_files/delivered';
     private $count;
     private $delimiter = '|';
     private $retailerId;
@@ -41,6 +40,12 @@ class IssuerA extends AbstractCard
         }
     }
 
+    /**
+     * Formats the file according to the Issuer's file specs
+     *
+     * @param BatchRow $batchRow
+     * @return bool
+     */
     public function addCard(BatchRow $batchRow)
     {
         $this->format($batchRow);
@@ -73,9 +78,9 @@ class IssuerA extends AbstractCard
         $data[] = '';
         $data[] = '';
 
-        $bytes = $this->addRow($data);
+        $bytesWritten = $this->addRow($data);
 
-        if ($bytes > 0) {
+        if ($bytesWritten > 0) {
             $this->count++;
         }
         else {
@@ -105,9 +110,21 @@ class IssuerA extends AbstractCard
     }
 
     /**
+     * Adds a row to the file using VendorA's formatting
+     * Using fputs instead of fputcsv because I don't want to use field enclosures.
+     *
+     * @param array $row
+     * @return int
+     */
+    private function addRow(array $row)
+    {
+        return fputs($this->tmpFileHandle, implode($this->delimiter, $row) . '\n');
+    }
+
+    /**
      * Creates the file to be delivered to the card vendor
      *
-     * @return void
+     * @return int
      */
     public function createFile()
     {
@@ -136,7 +153,7 @@ class IssuerA extends AbstractCard
     }
 
     /**
-     * Sets the date to today in VendorA's file name format
+     * Sets the date to today in IssuerA file name format
      *
      * @return void
      */
@@ -144,6 +161,7 @@ class IssuerA extends AbstractCard
     {
         $this->date = date('m_d_Y');
     }
+
 
     public function setFileCounter()
     {
@@ -206,36 +224,26 @@ class IssuerA extends AbstractCard
      */
     protected function setFilePrefix()
     {
-        $this->filePrefix = 'VendorA_';
+        $this->filePrefix = 'IssuerA_';
     }
 
     /**
-     * Adds a row to the file using VendorA's formatting
-     * Using fputs instead of fputcsv because I don't want to use field enclosures.
-     *
-     * @param array $row
-     * @return int
-     */
-    private function addRow(array $row)
-    {
-        return fputs($this->tmpFileHandle, implode($this->delimiter, $row) . '\n');
-    }
-
-    /**
-     * Functions below for another data field clean up
+     * Function below rechecks for invalid charactes and string lengths according to the Issuer's file specs
+     * 
      * cleanName($name)
+     * cleanAddress($address)
+     * cleanCity($city)
      * cleanZipCode($zip)
      * cleanCardAmount($amount)
-     * 
      */
 
-    private function cleanName($name)
+    protected function cleanName($name)
     {
         $clean = preg_replace('/[^a-zA-Z\ ]/', '', trim($name));
         return strtoupper(substr($clean, 0, 25));
     }
 
-    private function cleanAddress($address)
+    protected function cleanAddress($address)
     {
         $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address));
 
@@ -246,13 +254,13 @@ class IssuerA extends AbstractCard
         return strtoupper(substr($clean, 0, 35));
     }
 
-    private function cleanCity($city)
+    protected function cleanCity($city)
     {
         $clean = preg_replace('/[^a-zA-Z\ ]/', '', trim($city));
         return strtoupper(substr($clean, 0, 20));
     }
 
-    private function cleanZipCode($zip)
+    protected function cleanZipCode($zip)
     {
         $clean = preg_replace('/[^\d]/', '', trim($zip));
 
@@ -261,7 +269,7 @@ class IssuerA extends AbstractCard
         return substr($clean, 0, 5);
     }
 
-    private function cleanCardAmount($amount)
+    protected function cleanCardAmount($amount)
     {
         $clean = preg_replace('/[^\d]/', '', trim($amount));
         return preg_replace('/[^0-9]/', '', $clean);
