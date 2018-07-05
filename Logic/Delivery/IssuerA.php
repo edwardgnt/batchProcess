@@ -15,7 +15,7 @@ class IssuerA extends AbstractDelivery
     }
 
     /**
-     * Sets the remote patch we want to deliver file to on the Issuer's server
+     * Sets the remote path we want to deliver file to on the Issuer's server
      *
      * @param [type] $filePath
      * @return void
