@@ -38,6 +38,6 @@ class IssuerA extends AbstractDelivery
 
     public function deliverFiles()
     {
-        $files = $this->getFilesToDeliver
+        $files = $this->getFilesToDeliver;
     }
 }
