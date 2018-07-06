@@ -137,7 +137,7 @@ abstract class AbstractCard
         $clean = trim($state);
 
         if (strlen($clean) > 2) {
-            throw new UnexpectedValueException('Invalid state value being used to create batch');
+            throw new UnexpectedValueException("Invalid state value being used to create batch");
         }
 
         return strtoupper($clean);

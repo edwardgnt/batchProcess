@@ -32,11 +32,11 @@ class BatchRow
     private function initialize(array $row)
     {
         if (!is_array($row)) {
-            throw new \InvalidArgumentException('Need an array to be passed');
+            throw new \InvalidArgumentException("Need an array to be passed");
         }
 
         if (count($row) !== 15) {
-            throw new \UnexpectedValueException('Expecting 15 total columns');
+            throw new \UnexpectedValueException("Expecting 15 total columns");
         }
 
         $this->id = $row[0];

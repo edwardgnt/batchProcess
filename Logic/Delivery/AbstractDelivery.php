@@ -9,7 +9,7 @@ abstract class AbstractDelivery
      * @var [type]
      */
     protected $Sftp;
-    protected $basePath = '/batch_files/';
+    protected $basePath = 'batch_files/';
     protected $deliveredPath = 'delivered/';
     protected $errorDirectory = 'error/';
     protected $localBasePath;
@@ -82,7 +82,7 @@ abstract class AbstractDelivery
 
         if (!is_dir($toScan)) {
             if (!mkdir($toScan, 0755, true)) {
-                throw new \DomainException("Could not make directory: " . $toScan);
+                throw new \DomainException("Could not make directory: {$toScan}");
             }
         }
 
@@ -143,7 +143,7 @@ abstract class AbstractDelivery
         // Move File: If directory does not exist, make a directory. If fails to make directoy throw an exception
         if (!is_dir($toPath)) {
             if (!mkdir($toPath, 0755, true)) {
-                throw new \DomainException("Could make directory: " . $filePath . $toPath);
+                throw new \DomainException("Could make directory: {$filePath} {$toPath}");
             }
         }
 
@@ -151,7 +151,7 @@ abstract class AbstractDelivery
         $fileResults = rename($filePath, $toPath . $fileName);
 
         if (!$fileResults) {
-            throw new \DomainException('Could not move file: ' . $filePath . 'to' . $toPath);
+            throw new \DomainException("Could not move file: {$filePath} to {$toPath}");
         }
 
         return $results;
@@ -171,7 +171,7 @@ abstract class AbstractDelivery
 
         if (!is_dir($toPath)) {
             if (!mkdir($toPath, 0755, true)) {
-                throw new \DomainException('Could not make directory: ' . $toPath);
+                throw new \DomainException("Could not make directory: {$toPath}");
             }
         }
 
@@ -179,7 +179,7 @@ abstract class AbstractDelivery
         $fileResults = rename($filePath, $toPath . $fileName);
 
         if (!$fileResults) {
-            throw new \DomainException('Could not move file: ' . $filePath . ' to ' . $toPath);
+            throw new \DomainException("Could not move file {$filePath} to {$toPath}");
         }
 
         return $fileResults;

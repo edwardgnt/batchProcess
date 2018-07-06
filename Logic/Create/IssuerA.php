@@ -248,7 +248,7 @@ class IssuerA extends AbstractCard
         $clean = preg_replace('/[^a-zA-Z\d\ \#]/', '', trim($address));
 
         if (strlen($clean) > 35) {
-            throw new \LengthException('Address field can not be longer than 35 characters.');
+            throw new \LengthException("Address field can not be longer than 35 characters.");
         }
 
         return strtoupper(substr($clean, 0, 35));
