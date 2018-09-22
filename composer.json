@@ -1,0 +1,12 @@
+{
+    "name": "vendor/batch_automation_process",
+    "description": "Validates, Formats, and Delivers Batch data files",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Edward Guereque",
+            "email": "edwardgnt@gmail.com"
+        }
+    ],
+    "require": {}
+}
